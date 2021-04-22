@@ -94,7 +94,7 @@ def listToString(list):
     n = len(list)
     result = ''
     for i in range(n):
-        result += list[i]
+        result += str(list[i])
     return result
 
 # implementasi library SHA-1
@@ -114,14 +114,16 @@ def searchSignature(message):
     return signature
 
 # verify jika digital signature di file terpisah TESTED tinggal ulik2 dikit    
-def verify(encryptedSign, message, public):
-    sign = decrypt(public, encryptedSign) #result hash mentah
+def verify(receivedHash, message, private):
     ourHashed = hashFunction(message) #result hash mentah
-    if sign == ourHashed:
+    sign = decrypt(private, receivedHash)
+    sign_str = ''
+    for i in range(len(sign)):
+        sign_str += chr(sign[i])
+    if sign_str == ourHashed:
         return True
     else:
         return False
-
 
 if __name__ == '__main__':
 
@@ -135,9 +137,9 @@ if __name__ == '__main__':
     message = input(" Enter a message (plaintext): ")
     encrypted_msg = encrypt(public, message)
     
-    print(" Your plaintext: ", message)
-    print(" Your message in ASCII", convert(message))
-    print(" Your encrypted message in hexadecimal is: ", (encrypted_msg))
+    # print(" Your plaintext: ", message)
+    # print(" Your message in ASCII", convert(message))
+    # print(" Your encrypted message in hexadecimal is: ", (encrypted_msg))
     
 
     # print(" Decrypting message with private key ", private, " . . .")
@@ -147,12 +149,9 @@ if __name__ == '__main__':
     # print(" Your message: ", ''.join(chr(i) for i in decrypted_msg))
 
     hashed = hashFunction(message)
-    sign = encrypt(private, hashed)
+    sign = encrypt(public, hashed)
 
-    # arr = ['a', 'b', 'c', 'd']
-    # print(listToString(arr))
-    hello = searchSignature("hahahahhaha8759481313434 <ds>nana</ds>")
-    if verify(sign, message, public):
+    if verify(sign, message, private):
         print("success")
     else:
         print("failed")
