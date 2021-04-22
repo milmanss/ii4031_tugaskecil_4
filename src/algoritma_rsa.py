@@ -42,11 +42,21 @@ def isPrime(x):
                 return False
         return True
 
-def generateKey(p, q):
-    if p == q:
-        raise Exception("Sorry, p and q can't be equal")
-    elif not ((isPrime(p)) and (isPrime(q))):
-        raise Exception("Sorry, p and q must be prime")
+def generatePrime():
+    while 1:
+        p = random.getrandbits(8)
+        if isPrime(p) and p > 127:
+            break
+    
+    while 1:
+        q = random.getrandbits(8)
+        if isPrime(q) and q > 127 and q != p:
+            break
+
+    return p, q
+
+def generateKey():
+    p, q = generatePrime()
     
     # if both numbers prime
     n = p * q
@@ -102,12 +112,6 @@ def hashFunction(message):
     hashed = sha1(message.encode("UTF-8")).hexdigest()
     return hashed
 
-def sign(message, public):
-    hashed = hashFunction(message)
-    sign = encrypt(public, hashed)
-    sign_str = listToString(sign)
-    return "<ds>"+sign_str+"</ds>"
-
 # search digital signature jika digital sign embedded dalam file TESTED
 def searchSignature(message):
     signature = ''
@@ -132,11 +136,7 @@ def verify(receivedHash, message, private):
         return False
 
 if __name__ == '__main__':
-
-    p = int(input(" Enter p (must a prime number): "))
-    q = int(input(" Enter q (must a prime number): "))
-
-    public, private = generateKey(p, q)
+    public, private = generateKey()
 
     print(" *** Your public key is ", public, " and your private key is ", private)
 
