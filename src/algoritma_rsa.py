@@ -129,6 +129,16 @@ def searchSignature(message):
                 signature += message[i]
     return signature
 
+def searchMessage(message):
+    msg = ''
+    start = message.find("<ds>")
+    if "<ds>" in message:
+        end = message.find("</ds>")
+        if "</ds>" in message:
+            for i in range(start):
+                msg += message[i]
+    return msg
+
 # verify jika digital signature di file terpisah TESTED tinggal ulik2 dikit    
 def verify(receivedHash, message, private):
     ourHashed = hashFunction(message) #result hash mentah
@@ -162,6 +172,10 @@ if __name__ == '__main__':
 
     hashed = hashFunction(message)
     sign = encrypt(public, hashed)
+
+    # msg = "hahahahahahahah<ds>nana</ds>"
+    # print(searchMessage(msg))
+    # print("yuhu")
 
     if verify(sign, message, private):
         print("success")
