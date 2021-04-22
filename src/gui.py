@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter.filedialog import askopenfile
+from tkinter import filedialog as fd
 from algoritma_rsa import *
 import time
 import os
@@ -40,13 +41,13 @@ def digiSign():
     elif(mode == '2'): #file message
         # text = (openFile('.temporary','r'))
         # appendSignature(text, 'r', sign(text, public))
-
-        text = sign(openFile('.temporary','r'), public)
+        filename = fd.askopenfilename()
+        text = sign(message, public)
         result = message + text
         f = openFile('.temporary','r')
         #namafile = f.name
         # filename = '.temporary' + '.' + 'txt'
-        writeFile(result, openFile('.temporary', 'r'), 'w')
+        writeFile(result, filename, 'w')
         lbl_result_text['text'] = 'Success! Saved in ' 
     
 
@@ -99,6 +100,18 @@ def askOpenFile(mode):
             writeFile(f.read(),'.temporary', 'wb')
             var1.set(2)
             lbl_file_status['text'] = 'Message file successfully loaded'
+        elif (mode==2):
+            writeFile(f.read(),'.temporary-public', 'wb')
+            public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
+            lbl_public_text['text'] = public
+            var2.set(2)
+            lbl_file_status['text'] = 'Public key successfully loaded'
+        elif (mode==3):
+            writeFile(f.read(),'.temporary-private', 'wb')
+            private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
+            lbl_private_text['text'] = private
+            var2.set(2)
+            lbl_file_status['text'] = 'Private key successfully loaded'
 
 # Open file in read only
 def openFile(file, mode):
@@ -143,14 +156,6 @@ def saveKey():
 
 # Save function
 def saveToNewDoc():
-  #  if(not(ent_file_name.get() and ent_file_ext.get())):
-  #      messagebox.showerror('Error', 'Enter file name and extension!')
-  #      return
-  #  text = bytearray(lbl_result_text['text'], 'latin-1')
-  #  filename = ent_file_name.get() + '.' + ent_file_ext.get()
-  #  writeFile(text, filename, 'wb')
-  #  lbl_result_text['text'] = 'Success! Saved in ' + filename
-
     global public, private
     # Get key and mode
     mode = var1.get()
@@ -164,6 +169,8 @@ def saveToNewDoc():
         filename = ent_file_name.get() + '.' + ent_file_ext.get()
         writeFile(result, filename, 'w')
         lbl_result_text['text'] = 'Success! Saved in ' + filename
+
+
 
 # Exit function 
 def qExit(): 
@@ -193,17 +200,22 @@ lbl_file_status.grid(row=4, column=1, padx=5, pady=5, sticky='w')
 btn_clear = Button(master=frm_form, text='Clear', width=5, command=clear)
 btn_clear.grid(row=3, column=1, padx=5, pady=5, sticky='e')
 
+# Key file
+btn_open = Button(master=frm_form, text='Open public key', width=15, command= lambda: askOpenFile(2))
+btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='w')
+btn_open = Button(master=frm_form, text='Open private key', width=15, command= lambda: askOpenFile(3))
+btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='e')
 
 btn_compute_key = Button(master=frm_form, text='Compute key', width=15, command=computeKey)
-btn_compute_key.grid(row=4, column=1, padx=5, pady=5, sticky='w')
+btn_compute_key.grid(row=5, column=1, padx=5, pady=5, sticky='w')
 
 btn_save = Button(master=frm_form, text='Save key to file', width=15, command=saveKey)
-btn_save.grid(row=4, column=1, padx=5, pady=5, sticky='e')
+btn_save.grid(row=5, column=1, padx=5, pady=5, sticky='e')
 
 lbl_file_status = Label(master=frm_form, text='Status:')
-lbl_file_status.grid(row=5, column=0, padx=5, pady=5, sticky="w")
+lbl_file_status.grid(row=6, column=0, padx=5, pady=5, sticky="w")
 lbl_file_status = Label(master=frm_form)
-lbl_file_status.grid(row=5, column=1, padx=5, pady=5, sticky='w')
+lbl_file_status.grid(row=6, column=1, padx=5, pady=5, sticky='w')
 
 
 # Result key label
@@ -267,13 +279,13 @@ btn_save = Button(master=frm_form, text='Sign and save signature to other doc', 
 btn_save.grid(row=22, column=1, padx=5, pady=5, sticky="w")
 
 # verify
-lbl_file_ext = Label(master=frm_form, text='Digital Signature Embedded:')
-lbl_file_ext.grid(row=23, column=0, padx=5, pady=5, sticky="w")
-ent_file_ext.grid(row=23, column=1, padx=5, pady=5)
+lbl_verify = Label(master=frm_form, text='Verify:')
+lbl_verify.grid(row=23, column=0, padx=5, pady=5, sticky="w")
+btn_verifyEmbedded = Button(master=frm_form, text='Verify Embedded Digisign', width=40, command=computeKey)
+btn_verifyEmbedded.grid(row=24, column=1, padx=5, pady=5, sticky='w')
+btn_verify = Button(master=frm_form, text='Verify Digisign', width=40, command=computeKey)
+btn_verify.grid(row=25, column=1, padx=5, pady=5, sticky='w')
 
-#lbl_file_ext = Label(master=frm_form, text='Digital Signature in Another File:')
-#lbl_file_ext.grid(row=24, column=0, padx=5, pady=5, sticky="w")
-#ent_file_ext.grid(row=24, column=1, padx=5, pady=5)
 
 btn_exit = Button(master=frm_form, text='Exit', width=5, command=qExit)
 btn_exit.grid(row=26, column=1, padx=5, pady=5, sticky='e')
