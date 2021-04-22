@@ -24,52 +24,14 @@ def encryptGUI():
         public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
 
     if(mode == '1'): #input message
-        startTime = time.perf_counter()
-        lbl_result_text['text'] = encrypt(public, message)
-        endTime = time.perf_counter()
+        lbl_result_text['text'] = sign(message, public)
+        
     elif(mode == '2'): #file message
-        startTime = time.perf_counter()
-        if(not(ent_file_name.get() and ent_file_ext.get())):
-            messagebox.showerror('Error', 'Enter file name and extension!')
-            return
-        text = encrypt(public, openFile('.temporary','r'))
-        filename = ent_file_name.get() + '.' + ent_file_ext.get()
+        text = sign(openFile('.temporary','r'), public)
+        filename = '.temporary' + '.' + 'txt'
         writeFile(' '.join(text), filename, 'w')
-        lbl_result_text['text'] = 'Success! Saved in ' + filename
-        checkFileSize(filename)
-        endTime = time.perf_counter()
-    lbl_time_text['text'] = endTime - startTime
-
-
-def decryptGUI():
-    global public, private
-    # Get key and mode
-    mode = var1.get()
-    mode2 = var2.get()
-    message = ent_message.get()
-
-    if(lbl_public_text['text']==''):
-        computeKey()
-
-    if(mode2 == '2'): #file key
-        private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
-
-    if(mode == '1'): #input message
-        startTime = time.perf_counter()
-        lbl_result_text['text'] = ''.join(chr(i) for i in decrypt(private, message.split()))
-        endTime = time.perf_counter()
-    elif(mode == '2'): #file message
-        startTime = time.perf_counter()
-        if(not(ent_file_name.get() and ent_file_ext.get())):
-            messagebox.showerror('Error', 'Enter file name and extension!')
-            return
-        text = decrypt(private, openFile('.temporary', 'r').split())
-        filename = ent_file_name.get() + '.' + ent_file_ext.get()
-        writeFile(''.join(chr(i) for i in text), filename, 'w')
-        lbl_result_text['text'] = 'Success! Saved in ' + filename
-        checkFileSize(filename)
-        endTime = time.perf_counter()
-    lbl_time_text['text'] = endTime - startTime
+        lbl_result_text['text'] = 'Success! Saved in '  + filename
+    
 
 
 def computeKey():
@@ -146,15 +108,6 @@ def writeFile(text, filename, mode):
     with open(filename, mode) as f:
         f.write(text)
 
-# Append file, sign adalah string signature NOT TESTED
-def appendSignature(file, mode, sign):
-    with open(file, "a+") as f:
-        f.seek(0)
-        data = f.read(100)
-        if len(data) > 0 :
-            f.write("\n")
-        f.write(sign)
-
 # Clear function
 def clear():
     ent_message.delete(0,END)
@@ -171,13 +124,6 @@ def clear():
     lbl_time_text['text'] = ''
     lbl_filesize_text['text'] = ''
 
-# Copy function
-def copy():
-    if(lbl_result_text['text'] == 'Click button above to see magic'):
-        messagebox.showerror('Error', 'Encrypt something please!')
-        return
-    window.clipboard_clear()
-    window.clipboard_append(lbl_result_text['text'])
 
 # Save key function
 def saveKey():
@@ -192,8 +138,14 @@ def saveKey():
     writeFile(lbl_private_text['text'], filename_private, 'w')
     lbl_file_status['text'] = 'Success! Saved in ' + filename_public + ' and ' + filename_private
 
-# Save function
 def save():
+    if(lbl_result_text['text'] == 'Click button above to see magic'):
+        messagebox.showerror('Error', 'Encrypt something please!')
+        return
+    
+
+# Save function
+def saveToNewDoc():
     if(lbl_result_text['text'] == 'Click button above to see magic'):
         messagebox.showerror('Error', 'Encrypt something please!')
         return
@@ -203,13 +155,7 @@ def save():
     text = bytearray(lbl_result_text['text'], 'latin-1')
     filename = ent_file_name.get() + '.' + ent_file_ext.get()
     writeFile(text, filename, 'wb')
-    checkFileSize(filename)
     lbl_result_text['text'] = 'Success! Saved in ' + filename
-
-def checkFileSize(filename):
-    file = open(filename)
-    file.seek(0, os.SEEK_END)
-    lbl_filesize_text['text'] = file.tell(), "bytes"
 
 # Exit function 
 def qExit(): 
@@ -269,10 +215,13 @@ btn_compute_key.grid(row=5, column=1, padx=5, pady=5, sticky='w')
 btn_save = Button(master=frm_form, text='Save key to file', width=15, command=saveKey)
 btn_save.grid(row=5, column=1, padx=5, pady=5, sticky='e')
 
+btn_generateKey = Button(master=frm_form, text='Auto Generate Key', width=15, command=saveKey) ### commandnya nanti ganti ke auto generate key
+btn_generateKey.grid(row=6, column=1, padx=5, pady=5, sticky='e')
+
 lbl_file_status = Label(master=frm_form, text='Status:')
-lbl_file_status.grid(row=6, column=0, padx=5, pady=5, sticky="w")
+lbl_file_status.grid(row=7, column=0, padx=5, pady=5, sticky="w")
 lbl_file_status = Label(master=frm_form)
-lbl_file_status.grid(row=6, column=1, padx=5, pady=5, sticky='w')
+lbl_file_status.grid(row=7, column=1, padx=5, pady=5, sticky='w')
 
 
 # Result key label
@@ -292,6 +241,8 @@ var1 = StringVar()
 var1.set(1)
 var2 = StringVar()
 var2.set(1)
+var3 = StringVar()
+var3.set(1)
 
 # Encryption mode
 lbl_mode = Label(master=frm_form, text='Message mode:')
@@ -301,8 +252,6 @@ rad_mode.grid(row=11, column=1, padx=5, pady=5, sticky='w')
 rad_mode = Radiobutton(master=frm_form,text='File Message', variable = var1, value=2)
 rad_mode.grid(row=11, column=1, padx=5, pady=5)
 
-
-
 # Key mode
 lbl_mode = Label(master=frm_form, text='Key mode:')
 lbl_mode.grid(row=13, column=0, padx=5, pady=5, sticky="w")
@@ -311,31 +260,23 @@ rad_mode.grid(row=13, column=1, padx=5, pady=5, sticky='w')
 rad_mode = Radiobutton(master=frm_form,text='File Key', variable = var2, value=2)
 rad_mode.grid(row=13, column=1, padx=5, pady=5)
 
-
+### # Signing mode
+### lbl_mode = Label(master=frm_form, text='Signing mode:')
+### lbl_mode.grid(row=14, column=0, padx=5, pady=5, sticky="w")
+### rad_mode = Radiobutton(master=frm_form,text='Included in Document', variable = var3, value=1)
+### rad_mode.grid(row=14, column=1, padx=5, pady=5, sticky='w')
+### rad_mode = Radiobutton(master=frm_form,text='Make New Document', variable = var3, value=2)
+### rad_mode.grid(row=14, column=1, padx=5, pady=5, sticky = 'e')
 
 # Encrypt/decrypt
-btn_compute = Button(master=frm_form, text='Encrypt', width=10, height=2, command=encryptGUI)
+btn_compute = Button(master=frm_form, text='Sign!', width=10, height=2, command=encryptGUI)
 btn_compute.grid(row=15, column=1, padx=5, pady=5, sticky='w')
-btn_compute = Button(master=frm_form, text='Decrypt', width=10, height=2, command=decryptGUI)
-btn_compute.grid(row=15, column=1, padx=5, pady=5, sticky='e')
 
 # Result label
 lbl_result = Label(master=frm_form, text='Result:')
 lbl_result_text = Label(master=frm_form, text='Click button above to see magic')
 lbl_result.grid(row=16, column=0, padx=5, pady=5, sticky="w")
 lbl_result_text.grid(row=16, column=1, padx=5, pady=5, sticky="w")
-
-
-# Processing time label
-lbl_time = Label(master=frm_form, text='Processing Time:')
-lbl_time_text = Label(master=frm_form, text='')
-lbl_time.grid(row=17, column=0, padx=5, pady=5, sticky="w")
-lbl_time_text.grid(row=17, column=1, padx=5, pady=5, sticky="w")
-
-# Action button
-btn_copy = Button(master=frm_form, text='Copy result', width=10, command=copy)
-btn_copy.grid(row=18, column=1, padx=5, pady=5, sticky='w')
-
 
 # File option
 lbl_file_name = Label(master=frm_form, text='File name:')
@@ -348,14 +289,7 @@ lbl_file_ext.grid(row=20, column=0, padx=5, pady=5, sticky="w")
 ent_file_ext.grid(row=20, column=1, padx=5, pady=5)
 
 
-# File size information
-lbl_filesize = Label(master=frm_form, text='File size:')
-lbl_filesize_text = Label(master=frm_form, text='')
-lbl_filesize.grid(row=21, column=0, padx=5, pady=5, sticky="w")
-lbl_filesize_text.grid(row=21, column=1, padx=5, pady=5, sticky="w")
-
-
-btn_save = Button(master=frm_form, text='Save ciphertext to file', width=18, command=save)
+btn_save = Button(master=frm_form, text='Sign and save signature to other doc', width=35, height = 2, command = saveToNewDoc) ## belum ada fungsinya
 btn_save.grid(row=22, column=1, padx=5, pady=5, sticky="w")
 btn_exit = Button(master=frm_form, text='Exit', width=5, command=qExit)
 btn_exit.grid(row=22, column=1, padx=5, pady=5, sticky='e')
