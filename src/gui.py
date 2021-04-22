@@ -146,6 +146,15 @@ def writeFile(text, filename, mode):
     with open(filename, mode) as f:
         f.write(text)
 
+# Append file, sign adalah string signature NOT TESTED
+def appendSignature(file, mode, sign):
+    with open(file, "a+") as f:
+    f.seek(0)
+    data = f.read(100)
+    if len(data) > 0 :
+        f.write("\n")
+    f.write(sign)
+
 # Clear function
 def clear():
     ent_message.delete(0,END)

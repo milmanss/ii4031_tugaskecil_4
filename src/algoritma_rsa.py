@@ -112,6 +112,12 @@ def hashFunction(message):
     hashed = sha1(message.encode("UTF-8")).hexdigest()
     return hashed
 
+def sign(message, public):
+    hashed = hashFunction(message)
+    sign = encrypt(public, hashed)
+    sign_str = listToString(sign)
+    return "<ds>"+sign_str+"</ds>"
+
 # search digital signature jika digital sign embedded dalam file TESTED
 def searchSignature(message):
     signature = ''
