@@ -149,11 +149,11 @@ def writeFile(text, filename, mode):
 # Append file, sign adalah string signature NOT TESTED
 def appendSignature(file, mode, sign):
     with open(file, "a+") as f:
-    f.seek(0)
-    data = f.read(100)
-    if len(data) > 0 :
-        f.write("\n")
-    f.write(sign)
+        f.seek(0)
+        data = f.read(100)
+        if len(data) > 0 :
+            f.write("\n")
+        f.write(sign)
 
 # Clear function
 def clear():
