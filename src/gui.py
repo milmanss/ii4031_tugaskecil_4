@@ -99,29 +99,23 @@ def askOpenFile(mode):
         if (mode==1):
             writeFile(f.read(),'.temporary', 'wb')
             var1.set(2)
-            lbl_file_status['text'] = 'Message file successfully loaded'
-        elif (mode==2):
-            writeFile(f.read(),'.temporary-public', 'wb')
-            public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
-            lbl_public_text['text'] = public
-            var2.set(2)
-            lbl_file_status['text'] = 'Public key successfully loaded'
+            btn_open_message['text'] = 'Message opened'
         elif (mode==3):
             writeFile(f.read(),'.temporary-private', 'wb')
             private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
             lbl_private_text['text'] = private
             var2.set(2)
-            lbl_file_status['text'] = 'Private key successfully loaded'
+            btn_open_private['text'] = 'Private key opened'
         elif (mode==4):
             writeFile(f.read(),'.temporary-verify-file', 'wb')
-            btn_open_file_verify['text'] = 'Opened'
+            btn_open_file_verify['text'] = 'File opened'
         elif (mode==5):
             writeFile(f.read(),'.temporary-signature', 'wb')
-            btn_open_signature['text'] = 'Opened'
+            btn_open_signature['text'] = 'Signature opened'
         elif (mode==6):
             writeFile(f.read(),'.temporary-public', 'wb')
             public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
-            btn_open_public_key['text'] = 'Opened'
+            btn_open_public_key['text'] = 'Public key opened'
 
 
 # Open file in read only
@@ -133,23 +127,6 @@ def openFile(file, mode):
 def writeFile(text, filename, mode):
     with open(filename, mode) as f:
         f.write(text)
-
-# Clear function
-def clear():
-    ent_message.delete(0,END)
-    ent_p.delete(0,END)
-    ent_q.delete(0,END)
-    ent_file_name.delete(0,END)
-    ent_file_ext.delete(0,END)
-    var1.set(1)
-    var2.set(1)
-    lbl_file_status['text'] = ''
-    lbl_public_text['text'] = ''
-    lbl_private_text['text'] = ''
-    lbl_result_text['text'] = 'Click button above to see magic'
-    lbl_time_text['text'] = ''
-    lbl_filesize_text['text'] = ''
-
 
 # Save key function
 def saveKey():
@@ -181,11 +158,6 @@ def saveToNewDoc():
         writeFile(result, filename, 'w')
         lbl_result_text['text'] = 'Success! Saved in ' + filename
 
-def reset():
-    btn_open_file_verify['text'] = 'Open file'
-    btn_open_signature['text'] = 'Open signature'
-    btn_open_public_key['text'] = 'Open public key'
-
 def verifying():
     verify_file = openFile('.temporary-verify-file', 'r')
     print(verify_file)
@@ -195,6 +167,11 @@ def verifying():
 
     if btn_open_signature['text'] == 'Opened':
         if verify(splitter(searchSignature(signature)), verify_file, public):
+            lbl_verify_status_code['text'] = 'Verified'
+        else:
+            lbl_verify_status_code['text'] = 'Not Verified'
+    else:
+        if verify(splitter(searchSignature(verify_file)), searchMessage(verify_file), public):
             lbl_verify_status_code['text'] = 'Verified'
         else:
             lbl_verify_status_code['text'] = 'Not Verified'
@@ -219,31 +196,20 @@ frm_form.pack()
 
 
 # File
-btn_open = Button(master=frm_form, text='Open message', width=15, command= lambda: askOpenFile(1))
-btn_open.grid(row=3, column=1, padx=5, pady=5, sticky='w')
+btn_open_message = Button(master=frm_form, text='Open message', width=15, command= lambda: askOpenFile(1))
+btn_open_message.grid(row=3, column=1, padx=5, pady=5, sticky='w')
 lbl_file_status = Label(master=frm_form)
 lbl_file_status.grid(row=4, column=1, padx=5, pady=5, sticky='w')
 
-btn_clear = Button(master=frm_form, text='Clear', width=5, command=clear)
-btn_clear.grid(row=3, column=1, padx=5, pady=5, sticky='e')
-
 # Key file
-btn_open = Button(master=frm_form, text='Open public key', width=15, command= lambda: askOpenFile(2))
-btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='w')
-btn_open = Button(master=frm_form, text='Open private key', width=15, command= lambda: askOpenFile(3))
-btn_open.grid(row=4, column=1, padx=5, pady=5, sticky='e')
+btn_open_private = Button(master=frm_form, text='Open private key', width=15, command= lambda: askOpenFile(3))
+btn_open_private.grid(row=3, column=1, padx=5, pady=5, sticky='e')
 
 btn_compute_key = Button(master=frm_form, text='Compute key', width=15, command=computeKey)
-btn_compute_key.grid(row=5, column=1, padx=5, pady=5, sticky='w')
+btn_compute_key.grid(row=4, column=1, padx=5, pady=5, sticky='w')
 
 btn_save = Button(master=frm_form, text='Save key to file', width=15, command=saveKey)
-btn_save.grid(row=5, column=1, padx=5, pady=5, sticky='e')
-
-lbl_file_status = Label(master=frm_form, text='Status:')
-lbl_file_status.grid(row=6, column=0, padx=5, pady=5, sticky="w")
-lbl_file_status = Label(master=frm_form)
-lbl_file_status.grid(row=6, column=1, padx=5, pady=5, sticky='w')
-
+btn_save.grid(row=4, column=1, padx=5, pady=5, sticky='e')
 
 # Result key label
 lbl_public = Label(master=frm_form, text='Public key:')
@@ -264,22 +230,6 @@ var2 = StringVar()
 var2.set(1)
 var3 = StringVar()
 var3.set(1)
-
-# Encryption mode
-lbl_mode = Label(master=frm_form, text='Message mode:')
-lbl_mode.grid(row=11, column=0, padx=5, pady=5, sticky="w")
-rad_mode = Radiobutton(master=frm_form,text='Input Message', variable = var1, value=1)
-rad_mode.grid(row=11, column=1, padx=5, pady=5, sticky='w')
-rad_mode = Radiobutton(master=frm_form,text='File Message', variable = var1, value=2)
-rad_mode.grid(row=11, column=1, padx=5, pady=5)
-
-# Key mode
-lbl_mode = Label(master=frm_form, text='Key mode:')
-lbl_mode.grid(row=13, column=0, padx=5, pady=5, sticky="w")
-rad_mode = Radiobutton(master=frm_form,text='Input Key', variable = var2, value=1)
-rad_mode.grid(row=13, column=1, padx=5, pady=5, sticky='w')
-rad_mode = Radiobutton(master=frm_form,text='File Key', variable = var2, value=2)
-rad_mode.grid(row=13, column=1, padx=5, pady=5)
 
 # Encrypt/decrypt
 btn_compute = Button(master=frm_form, text='Sign!', width=10, height=2, command=digiSign)
@@ -317,9 +267,6 @@ btn_open_signature.grid(row=25, column=1, padx=5, pady=5, sticky='e')
 
 btn_open_public_key = Button(master=frm_form, text='Open public key', command=lambda: askOpenFile(6))
 btn_open_public_key.grid(row=26, column=1, padx=5, pady=5, sticky='w')
-
-btn_reset = Button(master=frm_form, text='Reset', command=lambda: reset())
-btn_reset.grid(row=26, column=1, padx=5, pady=5, sticky='e')
 
 btn_verify = Button(master=frm_form, text='Verify', command=lambda: verifying())
 btn_verify.grid(row=27, column=1, padx=5, pady=5, sticky='w')

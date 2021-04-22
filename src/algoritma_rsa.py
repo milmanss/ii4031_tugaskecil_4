@@ -83,7 +83,6 @@ def generateKey():
 def encrypt(key, plaintext):
     publicKey, n = key
     result = []
-    #cipherText = [pow(ord(x), publicKey, n) for x in plaintext]
     for x in plaintext:
         cipherText = pow(ord(x), publicKey, n)
         result.append(hex(cipherText))
@@ -118,7 +117,6 @@ def sign(message, public):
     sign_str = listToString(sign)
     return "<ds>"+sign_str+"</ds>"
 
-# search digital signature jika digital sign embedded dalam file TESTED
 def searchSignature(message):
     signature = ''
     start = message.find("<ds>")
@@ -138,10 +136,9 @@ def searchMessage(message):
             for i in range(start):
                 msg += message[i]
     return msg
-
-# verify jika digital signature di file terpisah TESTED tinggal ulik2 dikit    
+ 
 def verify(receivedHash, message, private):
-    ourHashed = hashFunction(message) #result hash mentah
+    ourHashed = hashFunction(message)
     sign = decrypt(private, receivedHash)
     print(sign)
     sign_str = ''
@@ -157,37 +154,3 @@ def splitter(signature):
     result = signature.split(" ")
     result.remove("")
     return result
-
-
-if __name__ == '__main__':
-    public, private = generateKey()
-
-    print(" *** Your public key is ", public, " and your private key is ", private)
-
-    message = input(" Enter a message (plaintext): ")
-    encrypted_msg = encrypt(public, message)
-    
-    # print(" Your plaintext: ", message)
-    # print(" Your message in ASCII", convert(message))
-    # print(" Your encrypted message in hexadecimal is: ", (encrypted_msg))
-    
-
-    # print(" Decrypting message with private key ", private, " . . .")
-
-    # decrypted_msg = decrypt(private,encrypted_msg)
-    # print(" Your message in ASCII is: ", decrypted_msg)
-    # print(" Your message: ", ''.join(chr(i) for i in decrypted_msg))
-
-    hashed = hashFunction(message)
-    # sign = encrypt(public, hashed)
-    sign = sign(message, private)
-
-    print(sign)
-
-    if verify(splitter(searchSignature(sign)), message, public):
-        print("success")
-    else:
-        print("failed")
-
-# p sama q paling ngga >= 11 (?)
-# n gabisa kurang dari ASCII plaintext
