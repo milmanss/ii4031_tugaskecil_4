@@ -33,16 +33,16 @@ def digiSign():
         computeKey()
 
     if(mode2 == '2'): #file key
-        public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
+        private = (int(openFile('.temporary-private', 'r').split()[0]), int(openFile('.temporary-private', 'r').split()[1]))
 
     if(mode == '1'): #input message
-        lbl_result_text['text'] = sign(message, public)
+        lbl_result_text['text'] = sign(message, private)
         
     elif(mode == '2'): #file message
         # text = (openFile('.temporary','r'))
         # appendSignature(text, 'r', sign(text, public))
         filename = fd.askopenfilename()
-        text = sign(message, public)
+        text = sign(message, private)
         result = message + text
         f = openFile('.temporary','r')
         #namafile = f.name
@@ -112,6 +112,17 @@ def askOpenFile(mode):
             lbl_private_text['text'] = private
             var2.set(2)
             lbl_file_status['text'] = 'Private key successfully loaded'
+        elif (mode==4):
+            writeFile(f.read(),'.temporary-verify-file', 'wb')
+            btn_open_file_verify['text'] = 'Opened'
+        elif (mode==5):
+            writeFile(f.read(),'.temporary-signature', 'wb')
+            btn_open_signature['text'] = 'Opened'
+        elif (mode==6):
+            writeFile(f.read(),'.temporary-public', 'wb')
+            public = (int(openFile('.temporary-public', 'r').split()[0]), int(openFile('.temporary-public', 'r').split()[1]))
+            btn_open_public_key['text'] = 'Opened'
+
 
 # Open file in read only
 def openFile(file, mode):
@@ -163,8 +174,8 @@ def saveToNewDoc():
     message = openFile('.temporary','r')
     
     if(mode == '2'): #file message
-        text = sign(openFile('.temporary','r'), public)
-        result = message + text
+        text = sign(openFile('.temporary','r'), private)
+        result = text
         f = open('.temporary','r')
         filename = ent_file_name.get() + '.' + ent_file_ext.get()
         writeFile(result, filename, 'w')
@@ -174,6 +185,19 @@ def reset():
     btn_open_file_verify['text'] = 'Open file'
     btn_open_signature['text'] = 'Open signature'
     btn_open_public_key['text'] = 'Open public key'
+
+def verifying():
+    verify_file = openFile('.temporary-verify-file', 'r')
+    print(verify_file)
+    print(public)
+    signature = openFile('.temporary-signature', 'r')
+    print(splitter(searchSignature(signature)))
+
+    if btn_open_signature['text'] == 'Opened':
+        if verify(splitter(searchSignature(signature)), verify_file, public):
+            lbl_verify_status_code['text'] = 'Verified'
+        else:
+            lbl_verify_status_code['text'] = 'Not Verified'
 
 # Exit function 
 def qExit(): 
@@ -285,23 +309,26 @@ btn_save.grid(row=22, column=1, padx=5, pady=5, sticky="w")
 lbl_verify = Label(master=frm_form, text='Verifying File')
 lbl_verify.grid(row=24, column=0, padx=5, pady=5, sticky='w')
 
-btn_open_file_verify = Button(master=frm_form, text='Open file', command=lambda: askOpenFile(2))
+btn_open_file_verify = Button(master=frm_form, text='Open file', command=lambda: askOpenFile(4))
 btn_open_file_verify.grid(row=25, column=1, padx=5, pady=5, sticky='w')
 
-btn_open_signature = Button(master=frm_form, text='Open signature', command=lambda: askOpenFile(3))
+btn_open_signature = Button(master=frm_form, text='Open signature', command=lambda: askOpenFile(5))
 btn_open_signature.grid(row=25, column=1, padx=5, pady=5, sticky='e')
 
-btn_open_public_key = Button(master=frm_form, text='Open public key', command=lambda: askOpenFile(4))
+btn_open_public_key = Button(master=frm_form, text='Open public key', command=lambda: askOpenFile(6))
 btn_open_public_key.grid(row=26, column=1, padx=5, pady=5, sticky='w')
 
 btn_reset = Button(master=frm_form, text='Reset', command=lambda: reset())
 btn_reset.grid(row=26, column=1, padx=5, pady=5, sticky='e')
 
-btn_verify = Button(master=frm_form, text='Verify')
+btn_verify = Button(master=frm_form, text='Verify', command=lambda: verifying())
 btn_verify.grid(row=27, column=1, padx=5, pady=5, sticky='w')
 
 lbl_verify_status = Label(master=frm_form, text='Status:')
 lbl_verify_status.grid(row=28, column=0, padx=5, pady=5, sticky='w')
+
+lbl_verify_status_code = Label(master=frm_form, text='')
+lbl_verify_status_code.grid(row=28, column=1, padx=5, pady=5, sticky='w')
 
 btn_exit = Button(master=frm_form, text='Exit', width=5, command=qExit)
 btn_exit.grid(row=29, column=1, padx=5, pady=5, sticky='e')

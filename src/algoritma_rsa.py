@@ -44,13 +44,13 @@ def isPrime(x):
 
 def generatePrime():
     while 1:
-        p = random.getrandbits(8)
-        if isPrime(p) and p > 127:
+        p = random.getrandbits(6)
+        if isPrime(p) and p > 11:
             break
     
     while 1:
-        q = random.getrandbits(8)
-        if isPrime(q) and q > 127 and q != p:
+        q = random.getrandbits(6)
+        if isPrime(q) and q > 11 and q != p:
             break
 
     return p, q
@@ -104,7 +104,7 @@ def listToString(list):
     n = len(list)
     result = ''
     for i in range(n):
-        result += str(list[i])
+        result = result + str(list[i]) + ' '
     return result
 
 # implementasi library SHA-1
@@ -133,13 +133,21 @@ def searchSignature(message):
 def verify(receivedHash, message, private):
     ourHashed = hashFunction(message) #result hash mentah
     sign = decrypt(private, receivedHash)
+    print(sign)
     sign_str = ''
     for i in range(len(sign)):
         sign_str += chr(sign[i])
+    print(sign_str)
     if sign_str == ourHashed:
         return True
     else:
         return False
+
+def splitter(signature):
+    result = signature.split(" ")
+    result.remove("")
+    return result
+
 
 if __name__ == '__main__':
     public, private = generateKey()
@@ -161,9 +169,12 @@ if __name__ == '__main__':
     # print(" Your message: ", ''.join(chr(i) for i in decrypted_msg))
 
     hashed = hashFunction(message)
-    sign = encrypt(public, hashed)
+    # sign = encrypt(public, hashed)
+    sign = sign(message, private)
 
-    if verify(sign, message, private):
+    print(sign)
+
+    if verify(splitter(searchSignature(sign)), message, public):
         print("success")
     else:
         print("failed")
