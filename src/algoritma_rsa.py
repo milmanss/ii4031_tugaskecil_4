@@ -140,11 +140,9 @@ def searchMessage(message):
 def verify(receivedHash, message, private):
     ourHashed = hashFunction(message)
     sign = decrypt(private, receivedHash)
-    print(sign)
     sign_str = ''
     for i in range(len(sign)):
         sign_str += chr(sign[i])
-    print(sign_str)
     if sign_str == ourHashed:
         return True
     else:

@@ -160,10 +160,7 @@ def saveToNewDoc():
 
 def verifying():
     verify_file = openFile('.temporary-verify-file', 'r')
-    print(verify_file)
-    print(public)
     signature = openFile('.temporary-signature', 'r')
-    print(splitter(searchSignature(signature)))
 
     if btn_open_signature['text'] == 'Opened':
         if verify(splitter(searchSignature(signature)), verify_file, public):
@@ -171,10 +168,13 @@ def verifying():
         else:
             lbl_verify_status_code['text'] = 'Not Verified'
     else:
-        if verify(splitter(searchSignature(verify_file)), searchMessage(verify_file), public):
-            lbl_verify_status_code['text'] = 'Verified'
-        else:
+        if searchSignature(verify_file) == '':
             lbl_verify_status_code['text'] = 'Not Verified'
+        else:
+            if verify(splitter(searchSignature(verify_file)), searchMessage(verify_file), public):
+                lbl_verify_status_code['text'] = 'Verified'
+            else:
+                lbl_verify_status_code['text'] = 'Not Verified'
 
 # Exit function 
 def qExit(): 
