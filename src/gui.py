@@ -3,7 +3,6 @@ from tkinter import messagebox
 from tkinter.filedialog import askopenfile
 from tkinter import filedialog as fd
 from algoritma_rsa import *
-import time
 import os
 
 
