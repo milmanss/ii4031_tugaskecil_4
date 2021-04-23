@@ -159,9 +159,9 @@ def saveToNewDoc():
 
 def verifying():
     verify_file = openFile('.temporary-verify-file', 'r')
-    signature = openFile('.temporary-signature', 'r')
-
+    
     if btn_open_signature['text'] == 'Opened':
+        signature = openFile('.temporary-signature', 'r')
         if verify(splitter(searchSignature(signature)), verify_file, public):
             lbl_verify_status_code['text'] = 'Verified'
         else:
